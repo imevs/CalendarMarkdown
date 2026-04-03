@@ -543,7 +543,7 @@
           month: params.month || now.getMonth() + 1,
           startDay: params.startDay || "Monday",
           view: params.view || "Year",
-          columns: params.columns || 2,
+          columns: params.columns || 1,
           renderAs: params.renderAs || "markdown"
         };
         if (!isRaw) {
