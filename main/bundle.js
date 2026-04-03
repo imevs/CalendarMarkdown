@@ -542,9 +542,9 @@
           year: params.year || now.getFullYear(),
           month: params.month || now.getMonth() + 1,
           startDay: params.startDay || "Monday",
-          view: params.view || "Month",
+          view: params.view || "Year",
           columns: params.columns || 2,
-          renderAs: params.renderAs || "html"
+          renderAs: params.renderAs || "markdown"
         };
         if (!isRaw) {
           updateUI(state);
