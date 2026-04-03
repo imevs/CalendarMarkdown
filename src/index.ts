@@ -17,7 +17,7 @@ function getParams() {
     } else if (pColumns) {
         columnsVal = parseInt(pColumns);
     }
-    
+
     return {
         year: pYear ? parseInt(pYear) : undefined,
         month: pMonth ? parseInt(pMonth) : undefined,
@@ -44,7 +44,7 @@ function toggleTheme() {
 
 function updateUI(state: AppState) {
     const el = (id: string) => document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
-    
+
     if (el('year')) el('year').value = state.year.toString();
     if (el('month')) el('month').value = (state.month || 1).toString();
     if (el('startDay')) el('startDay').value = state.startDay;
@@ -55,7 +55,7 @@ function updateUI(state: AppState) {
     // Side effects based on view
     const monthGroup = document.getElementById('month-group');
     const columnsGroup = document.getElementById('columns-group');
-    
+
     if (state.view === 'Year') {
         monthGroup?.classList.add('hidden');
         columnsGroup?.classList.remove('hidden');
@@ -100,7 +100,7 @@ function getShareableURL(state: AppState): string {
 function render(state: AppState, isRaw: boolean) {
     try {
         hideError();
-        
+
         let outputContent = '';
         if (state.renderAs === 'markdown') {
             const canonical = generateCalendarMarkdown(state);
@@ -113,7 +113,7 @@ function render(state: AppState, isRaw: boolean) {
             const canonical = generateCalendarMarkdown(state);
             outputContent = renderMarkdownToHtml(canonical, state.view, state.columns);
         }
-        
+
         if (isRaw) {
             document.body.className = 'raw-mode';
             document.body.innerHTML = `<pre style="white-space: pre; font-family: monospace; margin: 0; padding: 2rem; overflow-x: auto;">${outputContent}</pre>`;
@@ -142,18 +142,18 @@ function main() {
         year: params.year || now.getFullYear(),
         month: params.month || (now.getMonth() + 1),
         startDay: params.startDay || 'Monday',
-        view: params.view || 'Month',
-        columns: params.columns || 2,
-        renderAs: params.renderAs || 'html',
+        view: params.view || 'Year',
+        columns: params.columns || 1,
+        renderAs: params.renderAs || 'markdown',
     };
 
     if (!isRaw) {
         updateUI(state);
-        
+
         // Reactive listeners
         const el = (id: string) => document.getElementById(id);
         const inputs = ['year', 'month', 'startDay', 'view', 'columns', 'renderAs'];
-        
+
         const handleChange = () => {
             state.year = parseInt((el('year') as HTMLInputElement).value) || now.getFullYear();
             state.month = parseInt((el('month') as HTMLSelectElement).value);
@@ -162,7 +162,7 @@ function main() {
             const colVal = (el('columns') as HTMLSelectElement).value;
             state.columns = colVal === 'continuous' ? 'continuous' : parseInt(colVal);
             state.renderAs = (el('renderAs') as HTMLSelectElement).value as 'html' | 'markdown' | 'text';
-            
+
             updateUI(state);
             render(state, false);
         };
