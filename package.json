@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "echo $APP_FOLDER_NAME && esbuild src/index.ts --bundle --outfile=$APP_FOLDER_NAME/bundle.js --target=es2016 && cp index.html $APP_FOLDER_NAME",
-    "dev": "esbuild src/index.ts --bundle --outfile=dist/bundle.js --target=es2016 --serve=8080 --servedir=.",
+    "dist": "esbuild src/index.ts --bundle --minify --outfile=$APP_FOLDER_NAME/bundle.js --target=es2016",
+    "build": "npm run dist && cp index.html styles.css $APP_FOLDER_NAME",
+    "dev": "APP_FOLDER_NAME=dist npm run dist -- --serve=8080 --servedir=./dist",
     "test": "jest",
     "watch": "esbuild src/index.ts --bundle --outfile=dist/bundle.js --target=es2016 --watch"
   },

@@ -116,7 +116,11 @@ function render(state: AppState, isRaw: boolean) {
 
         if (isRaw) {
             document.body.className = 'raw-mode';
-            document.body.innerHTML = `<pre style="white-space: pre; font-family: monospace; margin: 0; padding: 2rem; overflow-x: auto;">${outputContent}</pre>`;
+            if (state.renderAs === 'html') {
+                document.body.innerHTML = outputContent;
+            } else {
+                document.body.innerHTML = `<pre style="white-space: pre; font-family: monospace; margin: 0; padding: 2rem; overflow-x: auto;">${outputContent}</pre>`;
+            }
         } else {
             const output = document.getElementById('output');
             if (output) {
