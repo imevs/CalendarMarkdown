@@ -1,8 +1,22 @@
 import { generateCalendarMarkdown, generateCalendarText, CalendarOptions, StartDay, View, zipRows } from './calendarGenerator';
 import { renderMarkdownToHtml } from './markdownRenderer';
 
+type RenderAs = 'html' | 'markdown' | 'text' | 'marked';
+
 interface AppState extends CalendarOptions {
-    renderAs: 'html' | 'markdown' | 'text';
+    renderAs: RenderAs;
+}
+
+let markedLoaded = false;
+function loadMarked(): Promise<void> {
+    if (markedLoaded) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js';
+        script.onload = () => { markedLoaded = true; resolve(); };
+        script.onerror = () => reject(new Error('Failed to load marked.js'));
+        document.head.appendChild(script);
+    });
 }
 
 function getParams() {
@@ -24,7 +38,7 @@ function getParams() {
         startDay: params.get('startDay') as StartDay | null || undefined,
         view: params.get('view') as View | null || undefined,
         columns: columnsVal,
-        renderAs: pRenderAs as 'html' | 'markdown' | 'text' | null || undefined,
+        renderAs: pRenderAs as RenderAs | null || undefined,
     };
 }
 
@@ -97,7 +111,7 @@ function getShareableURL(state: AppState): string {
     return url.toString();
 }
 
-function render(state: AppState, isRaw: boolean) {
+async function render(state: AppState, isRaw: boolean) {
     try {
         hideError();
 
@@ -108,6 +122,11 @@ function render(state: AppState, isRaw: boolean) {
         } else if (state.renderAs === 'text') {
             const canonical = generateCalendarText(state);
             outputContent = zipRows(canonical, state, 'text');
+        } else if (state.renderAs === 'marked') {
+            const canonical = generateCalendarMarkdown(state);
+            const zipped = zipRows(canonical, state, 'markdown');
+            await loadMarked();
+            outputContent = (window as any).marked.parse(zipped);
         } else {
             // HTML mode always uses Markdown canonical for simplicity
             const canonical = generateCalendarMarkdown(state);
@@ -116,7 +135,7 @@ function render(state: AppState, isRaw: boolean) {
 
         if (isRaw) {
             document.body.className = 'raw-mode';
-            if (state.renderAs === 'html') {
+            if (state.renderAs === 'html' || state.renderAs === 'marked') {
                 document.body.innerHTML = outputContent;
             } else {
                 document.body.innerHTML = `<pre style="white-space: pre; font-family: monospace; margin: 0; padding: 2rem; overflow-x: auto;">${outputContent}</pre>`;
@@ -165,7 +184,7 @@ function main() {
             state.view = (el('view') as HTMLSelectElement).value as View;
             const colVal = (el('columns') as HTMLSelectElement).value;
             state.columns = colVal === 'continuous' ? 'continuous' : parseInt(colVal);
-            state.renderAs = (el('renderAs') as HTMLSelectElement).value as 'html' | 'markdown' | 'text';
+            state.renderAs = (el('renderAs') as HTMLSelectElement).value as RenderAs;
 
             updateUI(state);
             render(state, false);

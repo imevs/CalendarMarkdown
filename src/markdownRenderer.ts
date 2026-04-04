@@ -34,7 +34,7 @@ export function renderMarkdownToHtml(
   const firstSection = monthSections[0] || '';
   const yearHeader = firstSection.startsWith('# ') ? monthSections.shift() : '';
   
-  const gridStyle = `display: grid; grid-template-columns: repeat(${columns}, minmax(0, 1fr)); gap: 1rem;`;
+  const gridStyle = `display: grid; grid-template-columns: repeat(${columns}, minmax(0, 1fr)); gap: 0.25rem;`;
   
   const renderedMonths = monthSections.map(section => {
     const lines = section.split('\n');
